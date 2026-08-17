@@ -2,12 +2,9 @@ https://www.luogu.com.cn/problem/P3805
 #include<bits/stdc++.h>
 using namespace std;
 using ll=long long;
-using ull=unsigned long long;
 using i128=__int128_t;
 const int inf=0x3f3f3f3f;
-const ll INF=0x3f3f3f3f3f3f3f3f;
 const int maxn=2e5+7;
-const double eps=1e-4;
 const int mod=1e9+7;
 
 void solve() {
