@@ -1,92 +1,111 @@
-https://www.luogu.com.cn/problem/U41492
-
+https://codeforces.com/problemset/problem/600/E
 #include<bits/stdc++.h>
 using namespace std;
 using ll=long long;
-using ull=unsigned long long;
 using i128=__int128_t;
 const int inf=0x3f3f3f3f;
 const ll INF=0x3f3f3f3f3f3f3f3f;
 const int maxn=1e5+7;
-const double eps=1e-4;
-const int mod=998244353;
+const int mod=100000000;
 
-int son[maxn];
+#define int long long
+
 int sz[maxn];
-int color[maxn];
-int colornum[maxn];
+int col[maxn];
+int dfn[maxn];
+int out[maxn];
+int son[maxn];
+int id[maxn];
 int ans[maxn];
-int diff;
+int p[maxn];
+int timer=0;
+int len=0,mx=0;
+vector<vector<int>>d(maxn+1);
 
+void add(int i){
+    ++p[col[i]];
+    if(p[col[i]]>mx){
+        mx=p[col[i]];
+        len=col[i];
+    }
+    else if(p[col[i]]==mx){
+        len+=col[i];
+    }
+}
+
+void del(int i){
+    --p[col[i]];
+}
+
+void dfs0(int i,int fa){
+    sz[i]=1;
+    dfn[i]=++timer;
+    id[dfn[i]]=i;
+    for(auto x:d[i]){
+        if(x==fa)continue;
+        dfs0(x,i);
+        sz[i]+=sz[x];
+        if(!son[i]||sz[x]>sz[son[i]]){
+            son[i]=x;
+        }
+    }
+    out[i]=timer;
+}
+
+
+void dfs(int i,int fa,bool k){
+    for(auto x:d[i]){
+        if(x==fa||x==son[i])continue;
+        dfs(x,i,0);
+    }
+    if(son[i]){
+        dfs(son[i],i,1);
+    }
+    for(auto x:d[i]){
+        if(x==fa||x==son[i])continue;
+        for(int t=dfn[x];t<=out[x];t++){
+            add(id[t]);
+        }
+    }
+    add(i);
+    ans[i]=len;
+    if(!k){
+        mx=0;
+        len=0;
+        for(auto x:d[i]){
+            if(x==fa)continue;
+            for(int t=dfn[x];t<=out[x];t++){
+                del(id[t]);
+            }
+        }
+        del(i);
+    }
+}
 
 void solve(){
-    ll n;cin>>n;
-    vector<vector<ll>>v(n+1);
-    for(int i=1;i<n;i++){
-        ll a,b;cin>>a>>b;
-        v[a].push_back(b);
-        v[b].push_back(a);
+    int n;cin>>n;
+    for(int i=1;i<=n;i++)cin>>col[i];
+    for(int i=0;i<n-1;i++){
+        int a,b;cin>>a>>b;
+        d[a].push_back(b);
+        d[b].push_back(a);
     }
-    for(int i=1;i<=n;i++)cin>>color[i];
-    
-    auto dfs1=[&](auto&&dfs1,int i,int fa)->void{
-        sz[i]++;
-        for(auto x:v[i]){
-            if(x==fa)continue;
-            dfs1(dfs1,x,i);
-            if(!son[i]||sz[x]>sz[son[i]])son[i]=x;
-            sz[i]+=sz[x];
-        }
-    };
-    auto effect=[&](auto&&effect,int i,int fa)->void{
-        if(++colornum[color[i]]==1)diff++;
-        for(auto x:v[i]){
-            if(x==fa)continue;
-            effect(effect,x,i);
-        }
-    };
-    auto cancel=[&](auto&&cancel,int i,int fa)->void{
-        if(--colornum[color[i]]==0)diff--;
-        for(auto x:v[i]){
-            if(x==fa)continue;
-            cancel(cancel,x,i);
-        }
-    };
-    auto dfs2=[&](auto&&dfs2,int i,int fa,int keep)->void{
-        for(auto x:v[i]){
-            if(x==fa||x==son[i])continue;
-            dfs2(dfs2,x,i,0);
-        }
-        if(son[i]){
-            dfs2(dfs2,son[i],i,1);
-        }
-        if(++colornum[color[i]]==1)diff++;
-        for(auto x:v[i]){
-            if(x==fa||x==son[i])continue;
-            effect(effect,x,i);
-        }
-        ans[i]=diff;
-        if(!keep){
-            cancel(cancel,i,fa);
-        }
-    };
-    dfs1(dfs1,1,0);
-    dfs2(dfs2,1,0,0);
-    ll m;cin>>m;
-    while(m--){
-        ll k;cin>>k;
-        cout<<ans[k]<<'\n';
+    dfs0(1,0);
+    // for(int i=1;i<=n;i++){
+    //     cout<<sz[i]<<'\n';
+    // }
+    dfs(1,0,1);
+    for(int i=1;i<=n;i++){
+        cout<<ans[i]<<' ';
     }
 
 
 }
 
-
 signed main(){
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
     int t=1;//cin>>t;
     while(t--)
     solve();
-    return 0;
 }
